@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Plant Leaf Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 18px;
+        }
+        img {
+            max-width: 300px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌿 Plant Leaf Classifier</h1>
+    <p>Upload an image of a leaf to identify the plant.</p>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <br>
+    <button onclick="uploadImage()">Classify</button>
+
+    <div id="result"></div>
+    <img id="preview" style="display:none;"/>
+
+    <script>
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            const previewImg = document.getElementById('preview');
+
+            if (fileInput.files.length === 0) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Prepare form data for API
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Call your backend API
+            fetch('http://127.0.0.1:8000/predict', {  // Change to your API URL
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<strong>Prediction:</strong> ${data.class} <br>
+                                            <strong>Confidence:</strong> ${data.confidence.toFixed(2)}%`;
+                }
+            })
+            .catch(err => {
+                resultDiv.innerHTML = `<p style="color:red;">Error: ${err}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
+
