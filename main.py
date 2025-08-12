@@ -1,10 +1,11 @@
 import uvicorn
-from fastapi import FastAPI,File, UploadFile
+from fastapi import FastAPI, File, UploadFile
 from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
 import io
 
+# Label mapping
 label_map = {
     0: "bosement bamboo",
     1: "Chinese horse chestnut",
@@ -39,45 +40,41 @@ label_map = {
     30: "tangerine"
 }
 
+# App instance
+app = FastAPI(title="Leaf Classifier API")
 
-app = FastAPI(
-    title="Welcome to my fastapi ",
-)
-@app.post("/predict")
-async def predict(file: UploadFile = File(...)):
-    contents = await file.read()
-    img = preprocess_image(contents)
-    preds = model.predict(img)
-    class_idx = int(np.argmax(preds[0]))
-    confidence = float(np.max(preds[0]))
-    return {"class_index": class_idx, "confidence": confidence}
-model = load_model("model/")
-
-img_size = (256,256)
+# Load model once at startup
+model = load_model("model/")  # path to your saved model
+img_size = (256, 256)
 
 def preprocess_image(image_bytes):
+    """Preprocess uploaded image to match model input."""
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     image = image.resize(img_size)
-    image = np.array(image)/255.0
+    image = np.array(image) / 255.0
     return np.expand_dims(image, axis=0)
-
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    """Predict leaf class from uploaded image."""
     contents = await file.read()
     img = preprocess_image(contents)
     preds = model.predict(img)
+
     class_idx = int(np.argmax(preds[0]))
+    class_name = label_map.get(class_idx, "Unknown")
     confidence = float(np.max(preds[0]))
-    return {"class_index": class_idx, "confidence": confidence}
 
+    return {
+        "class_index": class_idx,
+        "class_name": class_name,
+        "confidence": confidence
+    }
 
-@app.get('/')
+@app.get("/")
 async def root():
-    return {"Hello World"}
-
+    return {"message": "Leaf Classification API is running"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port = 8000)
-
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
