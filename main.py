@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from tensorflow.keras.models import load_model
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import numpy as np
 import io
@@ -43,6 +44,13 @@ label_map = {
 # App instance
 app = FastAPI(title="Leaf Classifier API")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # change to specific domain for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Load model once at startup
 model = load_model("model/")  # path to your saved model
 img_size = (256, 256)

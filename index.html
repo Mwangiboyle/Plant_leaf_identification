@@ -36,47 +36,48 @@
 
     <script>
         function uploadImage() {
-            const fileInput = document.getElementById('fileInput');
-            const resultDiv = document.getElementById('result');
-            const previewImg = document.getElementById('preview');
+    const fileInput = document.getElementById('fileInput');
+    const resultDiv = document.getElementById('result');
+    const previewImg = document.getElementById('preview');
 
-            if (fileInput.files.length === 0) {
-                alert("Please select an image first!");
-                return;
-            }
+    if (fileInput.files.length === 0) {
+        alert("Please select an image first!");
+        return;
+    }
 
-            const file = fileInput.files[0];
+    const file = fileInput.files[0];
 
-            // Preview image
-            const reader = new FileReader();
-            reader.onload = e => {
-                previewImg.src = e.target.result;
-                previewImg.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+    // Preview image
+    const reader = new FileReader();
+    reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
 
-            // Prepare form data for API
-            const formData = new FormData();
-            formData.append('file', file);
+    // Prepare form data for API
+    const formData = new FormData();
+    formData.append('file', file);
 
-            // Call your backend API
-            fetch('http://127.0.0.1:8000/predict', {  // Change to your API URL
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
-                } else {
-                    resultDiv.innerHTML = `<strong>Prediction:</strong> ${data.class} <br>
-                                            <strong>Confidence:</strong> ${data.confidence.toFixed(2)}%`;
-                }
-            })
-            .catch(err => {
-                resultDiv.innerHTML = `<p style="color:red;">Error: ${err}</p>`;
-            });
+    // Call backend API
+    fetch('http://0.0.0.0:8000/predict', {  // Change to your API URL
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+        } else {
+            resultDiv.innerHTML = `<strong>Prediction:</strong> ${data.class_name} <br>
+                                    <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%`;
         }
+    })
+    .catch(err => {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err}</p>`;
+    });
+}
+
     </script>
 </body>
 </html>
