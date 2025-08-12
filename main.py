@@ -1,6 +1,9 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI,File, UploadFile
 from tensorflow.keras.models import load_model
+from PIL import Image
+import numpy as np
+import io
 
 print("am trying out my neovim key biddings")
 label_map = {
@@ -43,6 +46,24 @@ app = FastAPI(
 )
 
 model = load_model("model/")
+
+img_size = (256,256)
+
+def preprocess_image(image_bytes):
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    image = image.resize(img_size)
+    image = np.array(image)/255.0
+    return np.expand_dims(image, axis=0)
+
+
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
+    img = preprocess_image(contents)
+    preds = model.predict(img)
+    class_idx = int(np.argmax(preds[0]))
+    confidence = float(np.max(preds[0]))
+    return {"class_index": class_idx, "confidence": confidence}
 
 
 @app.get('/')
