@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 import io
 
-print("am trying out my neovim key biddings")
 label_map = {
     0: "bosement bamboo",
     1: "Chinese horse chestnut",
