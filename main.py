@@ -44,7 +44,14 @@ label_map = {
 app = FastAPI(
     title="Welcome to my fastapi ",
 )
-
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
+    img = preprocess_image(contents)
+    preds = model.predict(img)
+    class_idx = int(np.argmax(preds[0]))
+    confidence = float(np.max(preds[0]))
+    return {"class_index": class_idx, "confidence": confidence}
 model = load_model("model/")
 
 img_size = (256,256)
