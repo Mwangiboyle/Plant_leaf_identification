@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from tensorflow.keras.models import load_model
 
+print("am trying out my neovim key biddings")
 label_map = {
     0: "bosement bamboo",
     1: "Chinese horse chestnut",
