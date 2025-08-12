@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from tensorflow.keras.models import load_model
 
 label_map = {
     0: "bosement bamboo",
@@ -37,8 +38,11 @@ label_map = {
 
 
 app = FastAPI(
-    title="Wlcome to my fastapi ",
+    title="Welcome to my fastapi ",
 )
+
+model = load_model("model/")
+
 
 @app.get('/')
 async def root():
