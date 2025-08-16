@@ -1,11 +1,15 @@
+# %%
+
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from tensorflow.keras.models import load_model
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
+from warnings import filterwarnings
 import numpy as np
 import io
 
+filterwarnings('ignore')
 # Label mapping
 label_map = {
     0: "bosement bamboo",
